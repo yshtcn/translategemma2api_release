@@ -1,4 +1,3 @@
-<img width="1217" height="606" alt="image" src="https://github.com/user-attachments/assets/97d77326-c581-43af-9114-3f34bd7f8853" />
 
 # TranslateGemma2API
 
