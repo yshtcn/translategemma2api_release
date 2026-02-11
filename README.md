@@ -1,3 +1,5 @@
+<img width="1217" height="606" alt="image" src="https://github.com/user-attachments/assets/97d77326-c581-43af-9114-3f34bd7f8853" />
+
 # TranslateGemma2API
 
 将 [TranslateGemma](https://www.ollama.com/library/translategemma) 大模型封装为翻译 API 服务，兼容 [translate-api](https://github.com/jianchang512/translate-api) 接口格式，附带 Web 翻译页面。
