@@ -66,6 +66,4 @@ API 返回格式：
 {"code": 0, "msg": "ok", "text": "Hello"}
 ```
 
-## 许可证
 
-MIT License
