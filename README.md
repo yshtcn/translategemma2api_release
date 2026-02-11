@@ -2,6 +2,8 @@
 
 将 [TranslateGemma](https://www.ollama.com/library/translategemma) 大模型封装为翻译 API 服务，兼容 [translate-api](https://github.com/jianchang512/translate-api) 接口格式，附带 Web 翻译页面。
 
+中国大陆下载信息详见：https://memos.ysht.me/memos/SvywMGjcF9psWoBhv9tkBY
+
 ## 下载
 
 | 方式 | 地址 |
