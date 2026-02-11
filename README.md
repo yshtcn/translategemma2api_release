@@ -2,7 +2,7 @@
 
 将 [TranslateGemma](https://www.ollama.com/library/translategemma) 大模型封装为翻译 API 服务，兼容 [translate-api](https://github.com/jianchang512/translate-api) 接口格式，附带 Web 翻译页面。
 
-支持**文本翻译**、**图片翻译**和 **PDF 翻译**。
+支持**文本翻译**、**图片翻译**和 **PDF 翻译**，内置**自动语言检测**。
 
 ## 下载
 
@@ -53,7 +53,9 @@ docker run -d -p 9911:9911 -v ./data:/data yshtcn/translategemma2api
         "model_prompt": "Text Recognition",
         "request_timeout": 120,
         "default_enabled": true
-    }
+    },
+    "language_detect_prompt": "You are an expert language detector.\n...\n{TEXT}",
+    "image_language_detect_prompt": "Detect the primary language of text in this image.\n..."
 }
 ```
 
@@ -71,6 +73,8 @@ docker run -d -p 9911:9911 -v ./data:/data yshtcn/translategemma2api
 | `ocr_model.model_name` | OCR 模型名称，默认 `glm-ocr:latest` |
 | `ocr_model.model_prompt` | OCR 识别提示词，默认 `Text Recognition` |
 | `ocr_model.default_enabled` | 网页端 OCR 前置是否默认勾选（`true`/`false`） |
+| `language_detect_prompt` | 文本语言检测提示词，`{TEXT}` 为占位符 |
+| `image_language_detect_prompt` | 图片语言检测提示词 |
 
 ## 使用
 
@@ -99,6 +103,37 @@ Content-Type: multipart/form-data
 ### PDF 翻译
 
 通过 Web 页面上传 PDF 文件，系统会自动拆分为逐页图片，提供左右对照的翻译浏览器，支持翻页按需翻译。
+
+### 语言检测 API
+
+```
+POST /api/detect-language/
+Content-Type: application/json
+
+{"text": "Hello world", "secret": ""}
+```
+
+返回 `{"code": 0, "detected_code": "en", "detected_name": "English", "detected_tg_code": "en"}`
+
+图片语言检测：
+
+```
+POST /api/detect-language/image/
+Content-Type: multipart/form-data
+
+参数：image（图片文件）, secret（可选）
+```
+
+### OCR 独立接口
+
+```
+POST /api/ocr/image/
+Content-Type: multipart/form-data
+
+参数：image（图片文件）, secret（可选）
+```
+
+返回 `{"code": 0, "text": "OCR 识别的文字"}`
 
 ### 语言列表
 
