@@ -1,9 +1,8 @@
-
 # TranslateGemma2API
 
 将 [TranslateGemma](https://www.ollama.com/library/translategemma) 大模型封装为翻译 API 服务，兼容 [translate-api](https://github.com/jianchang512/translate-api) 接口格式，附带 Web 翻译页面。
 
-支持**文本翻译**、**图片翻译**和 **PDF 翻译**，内置**自动语言检测**。
+支持**文本翻译**、**图片翻译**和 **PDF 翻译**，内置**自动语言检测**，兼容 **DeepLX / DeepL API** 接口。
 
 ## 下载
 
@@ -56,7 +55,8 @@ docker run -d -p 9911:9911 -v ./data:/data yshtcn/translategemma2api
         "default_enabled": true
     },
     "language_detect_prompt": "You are an expert language detector.\n...\n{TEXT}",
-    "image_language_detect_prompt": "Detect the primary language of text in this image.\n..."
+    "image_language_detect_prompt": "Detect the primary language of text in this image.\n...",
+    "deeplx_secret": ""
 }
 ```
 
@@ -76,6 +76,7 @@ docker run -d -p 9911:9911 -v ./data:/data yshtcn/translategemma2api
 | `ocr_model.default_enabled` | 网页端 OCR 前置是否默认勾选（`true`/`false`） |
 | `language_detect_prompt` | 文本语言检测提示词，`{TEXT}` 为占位符 |
 | `image_language_detect_prompt` | 图片语言检测提示词 |
+| `deeplx_secret` | DeepLX/DeepL 端点的访问密钥，留空表示开放访问（独立于主 `secret`） |
 
 ## 使用
 
@@ -89,6 +90,8 @@ GET /transapi/?text=你好&source_language=zh&target_language=en
 ```
 
 也支持 POST 请求（JSON 或 Form 表单）。
+
+> **自动检测：** `source_language` 支持传入 `auto`、`自动`、`自动检测`，系统会自动识别源语言后翻译，响应中额外返回 `detected_source` 字段。语言检测优先使用本地 `langdetect` 库（毫秒级），未安装时回退到 AI 模型检测。
 
 ### 图片翻译 API
 
@@ -136,6 +139,41 @@ Content-Type: multipart/form-data
 
 返回 `{"code": 0, "text": "OCR 识别的文字"}`
 
+### DeepLX / DeepL 兼容 API
+
+提供 DeepLX 和 DeepL 官方 API 兼容端点，可直接对接支持 DeepLX/DeepL 的翻译工具和插件。
+
+**DeepLX Free 端点：**
+
+```
+POST /deeplx/translate
+Content-Type: application/json
+
+{"text": "Hello", "source_lang": "EN", "target_lang": "ZH"}
+```
+
+认证方式：`Bearer Token`（Header）或 URL 参数 `?token=你的密钥`。
+
+**DeepL v2 官方 API 兼容：**
+
+```
+POST /deeplx/v2/translate
+Content-Type: application/json
+
+{"text": ["Hello", "World"], "source_lang": "EN", "target_lang": "ZH"}
+```
+
+认证方式：`DeepL-Auth-Key` Header。支持批量文本翻译和自动语言检测。
+
+**辅助端点：**
+
+| 端点 | 说明 |
+|------|------|
+| `GET /deeplx/v2/languages` | 语言列表 |
+| `GET /deeplx/v2/usage` | 用量查询 |
+
+> **提示：** DeepLX 端点使用独立的 `deeplx_secret` 配置项控制访问权限，与主 `secret` 互不影响。
+
 ### 语言列表
 
 ```
@@ -156,3 +194,9 @@ GET /languages
 | 3 | 不支持的语言 |
 | 4 | 翻译结果为空 |
 | 5 | 服务错误 |
+
+## 可选依赖
+
+| 依赖 | 说明 |
+|------|------|
+| `langdetect>=1.0.9` | 本地语言检测库，启用后语言检测为毫秒级；未安装时自动回退到 AI 模型检测 |
